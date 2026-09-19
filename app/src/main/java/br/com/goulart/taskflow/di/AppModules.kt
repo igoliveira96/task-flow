@@ -9,9 +9,9 @@ import br.com.goulart.taskflow.data.local.datasource.RoomProjectLocalDataSource
 import br.com.goulart.taskflow.data.local.datasource.RoomTaskLocalDataSource
 import br.com.goulart.taskflow.data.local.datasource.TaskLocalDataSource
 import br.com.goulart.taskflow.data.repository.AssigneeRepository
-import br.com.goulart.taskflow.data.repository.DefaultAssigneeRepository
-import br.com.goulart.taskflow.data.repository.DefaultProjectRepository
-import br.com.goulart.taskflow.data.repository.DefaultTaskRepository
+import br.com.goulart.taskflow.data.repository.IAssigneeRepository
+import br.com.goulart.taskflow.data.repository.IProjectRepository
+import br.com.goulart.taskflow.data.repository.ITaskRepository
 import br.com.goulart.taskflow.data.repository.ProjectRepository
 import br.com.goulart.taskflow.data.repository.TaskRepository
 import br.com.goulart.taskflow.domain.usecase.GetProjectTasksUseCase
@@ -40,9 +40,9 @@ private val localDataSourceModule = module {
 }
 
 private val repositoryModule = module {
-    single<ProjectRepository> { DefaultProjectRepository(get()) }
-    single<TaskRepository> { DefaultTaskRepository(get()) }
-    single<AssigneeRepository> { DefaultAssigneeRepository(get()) }
+    single<IProjectRepository> { ProjectRepository(get()) }
+    single<ITaskRepository> { TaskRepository(get()) }
+    single<IAssigneeRepository> { AssigneeRepository(get()) }
 }
 
 private val domainModule = module {

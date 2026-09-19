@@ -1,10 +1,10 @@
 package br.com.goulart.taskflow.domain.usecase
 
 import br.com.goulart.taskflow.data.model.TaskStatus
-import br.com.goulart.taskflow.data.repository.TaskRepository
+import br.com.goulart.taskflow.data.repository.ITaskRepository
 
 class UpdateTaskStatusUseCase(
-    private val taskRepository: TaskRepository,
+    private val iTaskRepository: ITaskRepository,
 ) {
     suspend operator fun invoke(
         taskId: Long,
@@ -13,6 +13,6 @@ class UpdateTaskStatusUseCase(
     ) {
         require(taskId > 0) { "Task id must be greater than zero" }
         require(position >= 0) { "Task position cannot be negative" }
-        taskRepository.updateStatus(taskId, status, position)
+        iTaskRepository.updateStatus(taskId, status, position)
     }
 }
