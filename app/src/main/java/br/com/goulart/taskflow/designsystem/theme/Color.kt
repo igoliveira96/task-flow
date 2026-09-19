@@ -30,7 +30,7 @@ val TaskFlowSurfaceVariant = Color(0xFFEBEFF5)
 val TaskFlowOnSurfaceVariant = Color(0xFF44546F)
 
 val TaskFlowOutline = Color(0xFF758195)
-val TaskFlowOutlineVariant = Color(0xFFC7D1DB)
+val TaskFlowOutlineVariant = Color(0xFFDFE3E9)
 
 val TaskFlowError = Color(0xFFBA1A1A)
 val TaskFlowOnError = Color(0xFFFFFFFF)
@@ -84,6 +84,11 @@ val TaskFlowStatusInProgressContainer = Color(0xFFE9F2FF)
 
 val TaskFlowStatusDone = Color(0xFF2E7D5B)
 val TaskFlowStatusDoneContainer = Color(0xFFD7F5E5)
+val TaskFlowOnStatusDoneContainer = Color(0xFF164B35)
+val TaskFlowStatusDoneDark = Color(0xFF7EE2B8)
+val TaskFlowOnStatusDoneDark = Color(0xFF164B35)
+val TaskFlowStatusDoneContainerDark = Color(0xFF1C4034)
+val TaskFlowOnStatusDoneContainerDark = Color(0xFFBAF3DB)
 
 
 // Task Priority

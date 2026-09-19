@@ -1,5 +1,6 @@
 package br.com.goulart.taskflow.ui
 
+import androidx.compose.foundation.layout.Box
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.CheckCircle
 import androidx.compose.material.icons.outlined.Home
@@ -26,8 +27,8 @@ import br.com.goulart.taskflow.ui.home.navigation.rememberHomeNavigationState
 fun TaskFlowApp(
     modifier: Modifier = Modifier,
 ) {
-    val windowSizeClass =
-        currentWindowAdaptiveInfoV2().windowSizeClass
+    val windowAdaptiveInfo = currentWindowAdaptiveInfoV2()
+    val windowSizeClass = windowAdaptiveInfo.windowSizeClass
 
     val navigationType =
         navigationType(windowSizeClass)
@@ -59,16 +60,7 @@ fun TaskFlowApp(
         )
     }
 
-    TaskFlowNavigationSuite(
-        navigationType = navigationType,
-        items = navigationItems,
-        selectedIndex = selectedIndex,
-        onItemClick = { index ->
-            selectedIndex = index
-            homeNavigationState.closeTask()
-        },
-        modifier = modifier,
-    ) {
+    val content: @Composable () -> Unit = {
         if (selectedIndex == 0) {
             homeStateHolder.SaveableStateProvider(key = "home") {
                 HomeRoute(
@@ -80,6 +72,28 @@ fun TaskFlowApp(
                 text = navigationItems[selectedIndex].label,
             )
         }
+    }
+
+    val showHomeWithoutNavigation = selectedIndex == 0 && (
+        windowAdaptiveInfo.windowPosture.isTabletop ||
+            (navigationType == TaskFlowNavigationType.BOTTOM_BAR &&
+                homeNavigationState.selectedTaskId != null)
+        )
+
+    if (showHomeWithoutNavigation) {
+        Box(modifier = modifier) { content() }
+    } else {
+        TaskFlowNavigationSuite(
+            navigationType = navigationType,
+            items = navigationItems,
+            selectedIndex = selectedIndex,
+            onItemClick = { index ->
+                selectedIndex = index
+                homeNavigationState.closeTask()
+            },
+            modifier = modifier,
+            content = content,
+        )
     }
 }
 

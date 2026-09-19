@@ -6,29 +6,25 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
 
-// Set of Material typography styles to start with
+private fun textStyle(size: Int, height: Int, weight: FontWeight = FontWeight.Normal) = TextStyle(
+    fontFamily = FontFamily.Default,
+    fontWeight = weight,
+    fontSize = size.sp,
+    lineHeight = height.sp,
+    letterSpacing = 0.sp,
+)
+
 val Typography = Typography(
-    bodyLarge = TextStyle(
-        fontFamily = FontFamily.Default,
-        fontWeight = FontWeight.Normal,
-        fontSize = 16.sp,
-        lineHeight = 24.sp,
-        letterSpacing = 0.5.sp
-    )
-    /* Other default text styles to override
-    titleLarge = TextStyle(
-        fontFamily = FontFamily.Default,
-        fontWeight = FontWeight.Normal,
-        fontSize = 22.sp,
-        lineHeight = 28.sp,
-        letterSpacing = 0.sp
-    ),
-    labelSmall = TextStyle(
-        fontFamily = FontFamily.Default,
-        fontWeight = FontWeight.Medium,
-        fontSize = 11.sp,
-        lineHeight = 16.sp,
-        letterSpacing = 0.5.sp
-    )
-    */
+    headlineLarge = textStyle(28, 36, FontWeight.Bold),
+    headlineMedium = textStyle(24, 32, FontWeight.Bold),
+    headlineSmall = textStyle(20, 28, FontWeight.SemiBold),
+    titleLarge = textStyle(20, 28, FontWeight.SemiBold),
+    titleMedium = textStyle(16, 24, FontWeight.SemiBold),
+    titleSmall = textStyle(14, 20, FontWeight.Medium),
+    bodyLarge = textStyle(16, 24),
+    bodyMedium = textStyle(14, 20),
+    bodySmall = textStyle(12, 18),
+    labelLarge = textStyle(14, 20, FontWeight.Medium),
+    labelMedium = textStyle(12, 16, FontWeight.Medium),
+    labelSmall = textStyle(12, 16, FontWeight.SemiBold),
 )

@@ -19,28 +19,25 @@ fun TaskFlowBoardColumnHeader(
     itemCount: Int,
     onMoreClick: (() -> Unit)?,
     modifier: Modifier = Modifier,
+    tone: TaskFlowStatusTone = TaskFlowStatusTone.Neutral,
 ) {
     androidx.compose.foundation.layout.Row(
         modifier = modifier
             .fillMaxWidth()
             .padding(
-                start = 16.dp,
+                start = 12.dp,
                 top = 12.dp,
-                bottom = 8.dp,
+                bottom = 12.dp,
                 end = 8.dp,
             ),
         verticalAlignment = androidx.compose.ui.Alignment.CenterVertically,
     ) {
-        Text(
-            text = title,
-            style = MaterialTheme.typography.titleSmall,
-            color = MaterialTheme.colorScheme.onSurface,
-        )
+        TaskFlowStatusBadge(label = title, tone = tone)
 
         Surface(
             modifier = Modifier.padding(start = 8.dp),
-            shape = MaterialTheme.shapes.extraLarge,
-            color = MaterialTheme.colorScheme.surface,
+            shape = MaterialTheme.shapes.extraSmall,
+            color = MaterialTheme.colorScheme.surfaceContainerLow,
         ) {
             Text(
                 text = itemCount.toString(),

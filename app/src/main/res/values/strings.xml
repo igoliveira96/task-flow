@@ -1,7 +1,8 @@
 <resources>
     <string name="app_name">TaskFlow</string>
-    <string name="home_title">Home</string>
-    <string name="home_board_subtitle">TaskFlow · Team board</string>
+    <string name="home_title">Team board</string>
+    <string name="home_workspace">TaskFlow / Workspace</string>
+    <string name="home_board_subtitle">%1$d tasks · %2$d columns</string>
     <string name="collapse_navigation">Collapse navigation</string>
     <string name="expand_navigation">Expand navigation</string>
     <string name="task_details_title">Task details</string>

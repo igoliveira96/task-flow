@@ -1,5 +1,7 @@
 package br.com.goulart.taskflow.ui.home
 
+import br.com.goulart.taskflow.designsystem.component.board.TaskFlowStatusTone
+
 internal data class HomeTask(
     val id: String,
     val title: String,
@@ -11,6 +13,7 @@ internal data class HomeBoardColumn(
     val id: String,
     val title: String,
     val tasks: List<HomeTask>,
+    val tone: TaskFlowStatusTone = TaskFlowStatusTone.Neutral,
 )
 
 internal val homeMockColumns = listOf(
@@ -28,6 +31,7 @@ internal val homeMockColumns = listOf(
     HomeBoardColumn(
         id = "in_progress",
         title = "In progress",
+        tone = TaskFlowStatusTone.Information,
         tasks = listOf(
             HomeTask("TF-106", "Build the Home board", "Display tasks grouped by their current status.", "Carla Santos"),
             HomeTask("TF-107", "Review navigation", "Check the bottom bar and sidebar on different screens.", "Ana Silva"),
@@ -37,6 +41,7 @@ internal val homeMockColumns = listOf(
     HomeBoardColumn(
         id = "done",
         title = "Done",
+        tone = TaskFlowStatusTone.Success,
         tasks = listOf(
             HomeTask("TF-109", "Set up the project", "Configure the Android app and Compose dependencies.", "Bruno Costa"),
             HomeTask("TF-110", "Define the app theme", "Create blue palettes for light and dark themes.", "Carla Santos"),

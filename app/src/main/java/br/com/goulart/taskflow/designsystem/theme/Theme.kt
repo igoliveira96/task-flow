@@ -21,10 +21,10 @@ private val LightColorScheme = lightColorScheme(
     secondaryContainer = TaskFlowSecondaryContainer,
     onSecondaryContainer = TaskFlowOnSecondaryContainer,
 
-    tertiary = TaskFlowSecondary,
-    onTertiary = TaskFlowOnSecondary,
-    tertiaryContainer = TaskFlowSecondaryContainer,
-    onTertiaryContainer = TaskFlowOnSecondaryContainer,
+    tertiary = TaskFlowStatusDone,
+    onTertiary = TaskFlowOnPrimary,
+    tertiaryContainer = TaskFlowStatusDoneContainer,
+    onTertiaryContainer = TaskFlowOnStatusDoneContainer,
 
     background = TaskFlowBackground,
     onBackground = TaskFlowOnBackground,
@@ -64,10 +64,10 @@ private val DarkColorScheme = darkColorScheme(
     secondaryContainer = TaskFlowSecondaryContainerDark,
     onSecondaryContainer = TaskFlowOnSecondaryContainerDark,
 
-    tertiary = TaskFlowSecondaryDark,
-    onTertiary = TaskFlowOnSecondaryDark,
-    tertiaryContainer = TaskFlowSecondaryContainerDark,
-    onTertiaryContainer = TaskFlowOnSecondaryContainerDark,
+    tertiary = TaskFlowStatusDoneDark,
+    onTertiary = TaskFlowOnStatusDoneDark,
+    tertiaryContainer = TaskFlowStatusDoneContainerDark,
+    onTertiaryContainer = TaskFlowOnStatusDoneContainerDark,
 
     background = TaskFlowBackgroundDark,
     onBackground = TaskFlowOnBackgroundDark,
@@ -121,6 +121,7 @@ fun TaskFlowTheme(
     MaterialTheme(
         colorScheme = colorScheme,
         typography = Typography,
+        shapes = Shapes,
         content = content,
     )
 }

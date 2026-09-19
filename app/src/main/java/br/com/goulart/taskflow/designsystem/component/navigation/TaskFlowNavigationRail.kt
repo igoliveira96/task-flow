@@ -28,6 +28,8 @@ import androidx.compose.material.icons.outlined.CheckCircle
 import androidx.compose.material.icons.outlined.Home
 import androidx.compose.material.icons.outlined.Settings
 import androidx.compose.material.icons.outlined.ViewKanban
+import androidx.compose.material.icons.rounded.DoneAll
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.IconButton
@@ -48,6 +50,9 @@ import androidx.compose.ui.unit.dp
 import br.com.goulart.taskflow.R
 import br.com.goulart.taskflow.designsystem.theme.TaskFlowTheme
 
+private val ExpandedRailWidth = 160.dp
+private val CollapsedRailWidth = 80.dp
+
 @Composable
 fun TaskFlowNavigationRail(
     items: List<TaskFlowNavigationItem>,
@@ -58,7 +63,7 @@ fun TaskFlowNavigationRail(
     modifier: Modifier = Modifier,
 ) {
     val railWidth by animateDpAsState(
-        targetValue = if (expanded) 240.dp else 80.dp,
+        targetValue = if (expanded) ExpandedRailWidth else CollapsedRailWidth,
         animationSpec = tween(durationMillis = 300),
         label = "Rail width",
     )
@@ -72,7 +77,7 @@ fun TaskFlowNavigationRail(
         modifier = modifier
             .fillMaxHeight()
             .width(railWidth),
-        color = MaterialTheme.colorScheme.surface,
+        color = MaterialTheme.colorScheme.surfaceContainerLow,
     ) {
         Column(
             modifier = Modifier
@@ -85,6 +90,36 @@ fun TaskFlowNavigationRail(
                     .verticalScroll(rememberScrollState()),
                 verticalArrangement = Arrangement.spacedBy(4.dp),
             ) {
+                Row(
+                    modifier = Modifier.fillMaxWidth().padding(top = 8.dp, bottom = 24.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    Box(modifier = Modifier.size(56.dp), contentAlignment = Alignment.Center) {
+                        Surface(
+                            modifier = Modifier.size(32.dp),
+                            shape = MaterialTheme.shapes.medium,
+                            color = MaterialTheme.colorScheme.primary,
+                            contentColor = MaterialTheme.colorScheme.onPrimary,
+                        ) {
+                            Icon(
+                                imageVector = Icons.Rounded.DoneAll,
+                                contentDescription = if (expanded) null else stringResource(R.string.app_name),
+                                modifier = Modifier.padding(6.dp),
+                            )
+                        }
+                    }
+                    AnimatedVisibility(
+                        visible = expanded,
+                        enter = fadeIn(tween(150, delayMillis = 100)),
+                        exit = fadeOut(tween(100)),
+                    ) {
+                        Text(
+                            text = stringResource(R.string.app_name),
+                            style = MaterialTheme.typography.titleMedium,
+                            maxLines = 1,
+                        )
+                    }
+                }
                 items.forEachIndexed { index, item ->
                     TaskFlowNavigationRailItem(
                         item = item,
@@ -96,6 +131,7 @@ fun TaskFlowNavigationRail(
             }
 
             Spacer(modifier = Modifier.height(8.dp))
+            HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
             IconButton(
                 onClick = { onExpandedChange(!expanded) },
                 modifier = Modifier
@@ -127,20 +163,20 @@ private fun TaskFlowNavigationRailItem(
         selected = selected,
         onClick = onClick,
         modifier = modifier.fillMaxWidth(),
-        shape = MaterialTheme.shapes.extraLarge,
+        shape = MaterialTheme.shapes.small,
         color = if (selected) {
             MaterialTheme.colorScheme.primaryContainer
         } else {
-            MaterialTheme.colorScheme.surface
+            MaterialTheme.colorScheme.surfaceContainerLow
         },
         contentColor = if (selected) {
-            MaterialTheme.colorScheme.onPrimaryContainer
+            MaterialTheme.colorScheme.primary
         } else {
             MaterialTheme.colorScheme.onSurfaceVariant
         },
     ) {
         Row(
-            modifier = Modifier.height(56.dp),
+            modifier = Modifier.height(48.dp),
             verticalAlignment = Alignment.CenterVertically,
         ) {
             Box(
@@ -149,6 +185,7 @@ private fun TaskFlowNavigationRailItem(
             ) {
                 Icon(
                     imageVector = item.icon,
+                    modifier = Modifier.size(20.dp),
                     contentDescription = if (expanded) null else item.label,
                 )
             }

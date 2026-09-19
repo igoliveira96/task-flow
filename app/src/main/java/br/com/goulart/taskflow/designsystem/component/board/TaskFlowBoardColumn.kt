@@ -18,11 +18,12 @@ fun <T> TaskFlowBoardColumn(
     items: List<T>,
     modifier: Modifier = Modifier,
     onMoreClick: (() -> Unit)? = null,
+    tone: TaskFlowStatusTone = TaskFlowStatusTone.Neutral,
     itemContent: @Composable (T) -> Unit,
 ) {
     Surface(
         modifier = modifier,
-        color = MaterialTheme.colorScheme.surfaceVariant,
+        color = MaterialTheme.colorScheme.surfaceContainerLow,
         shape = MaterialTheme.shapes.large,
     ) {
         Column {
@@ -30,6 +31,7 @@ fun <T> TaskFlowBoardColumn(
                 title = title,
                 itemCount = items.size,
                 onMoreClick = onMoreClick,
+                tone = tone,
             )
 
             LazyColumn(
@@ -37,8 +39,8 @@ fun <T> TaskFlowBoardColumn(
                     .fillMaxWidth()
                     .weight(1f),
                 contentPadding = PaddingValues(
-                    start = 12.dp,
-                    end = 12.dp,
+                    start = 8.dp,
+                    end = 8.dp,
                     bottom = 12.dp,
                 ),
                 verticalArrangement = Arrangement.spacedBy(8.dp),
