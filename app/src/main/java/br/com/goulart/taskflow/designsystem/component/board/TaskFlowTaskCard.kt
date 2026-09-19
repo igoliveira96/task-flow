@@ -27,7 +27,7 @@ fun TaskFlowTaskCard(
     taskId: String,
     title: String,
     description: String,
-    assignee: String,
+    assignee: String?,
     onClick: () -> Unit,
     selected: Boolean = false,
     modifier: Modifier = Modifier,
@@ -77,7 +77,9 @@ fun TaskFlowTaskCard(
                     style = MaterialTheme.typography.labelMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
-                TaskFlowAssigneeAvatar(name = assignee)
+                if (!assignee.isNullOrBlank()) {
+                    TaskFlowAssigneeAvatar(name = assignee)
+                }
             }
         }
     }

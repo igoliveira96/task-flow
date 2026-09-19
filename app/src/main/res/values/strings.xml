@@ -9,6 +9,7 @@
     <string name="select_project">Select a project</string>
     <string name="no_projects_available">No projects yet</string>
     <string name="new_project">New project</string>
+    <string name="new_task">New task</string>
     <string name="create_project">Create project</string>
     <string name="create_project_description">Add a project to start organizing your team’s work.</string>
     <string name="close_create_project">Close project creation</string>
@@ -21,15 +22,36 @@
     <string name="project_description_too_long">Use at most %1$d characters</string>
     <string name="character_count">%1$d/%2$d</string>
     <string name="create_project_error">We couldn’t create the project. Try again.</string>
+    <string name="create_task">Create task</string>
+    <string name="create_task_description">Add a task to %1$s.</string>
+    <string name="close_create_task">Close task creation</string>
+    <string name="task_title">Task title</string>
+    <string name="task_title_placeholder">What needs to be done?</string>
+    <string name="task_title_required">Enter a task title</string>
+    <string name="task_title_too_long">Use at most %1$d characters</string>
+    <string name="task_description_optional">Description (optional)</string>
+    <string name="task_description_placeholder">Add details or acceptance criteria</string>
+    <string name="task_description_too_long">Use at most %1$d characters</string>
+    <string name="task_status">Status</string>
+    <string name="task_status_todo">To do</string>
+    <string name="task_status_in_progress">In progress</string>
+    <string name="task_status_done">Done</string>
+    <string name="create_task_error">We couldn’t create the task. Try again.</string>
     <string name="cancel">Cancel</string>
     <string name="create">Create</string>
     <string name="project_empty_title">No tasks yet</string>
     <string name="project_empty_description">This project is ready. New tasks will appear here.</string>
+    <plurals name="home_project_subtitle">
+        <item quantity="one">%1$d task in %2$s</item>
+        <item quantity="other">%1$d tasks in %2$s</item>
+    </plurals>
     <string name="collapse_navigation">Collapse navigation</string>
     <string name="expand_navigation">Expand navigation</string>
     <string name="task_details_title">Task details</string>
     <string name="task_description">Description</string>
     <string name="task_assignee">Assignee</string>
+    <string name="task_unassigned">Unassigned</string>
+    <string name="task_no_description">No description provided.</string>
     <string name="back_to_board">Back to board</string>
     <string name="close_task_details">Close task details</string>
 </resources>

@@ -37,7 +37,7 @@ fun TaskDetailsScreen(
     taskId: String,
     title: String,
     description: String,
-    assignee: String,
+    assignee: String?,
     status: String,
     onClose: () -> Unit,
     modifier: Modifier = Modifier,
@@ -101,7 +101,9 @@ fun TaskDetailsScreen(
                 }
                 TaskDetailsField(
                     label = stringResource(R.string.task_description),
-                    value = description,
+                    value = description.ifBlank {
+                        stringResource(R.string.task_no_description)
+                    },
                 )
                 HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
                 Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
@@ -114,9 +116,12 @@ fun TaskDetailsScreen(
                         horizontalArrangement = Arrangement.spacedBy(8.dp),
                         verticalAlignment = Alignment.CenterVertically,
                     ) {
-                        TaskFlowAssigneeAvatar(name = assignee)
+                        if (!assignee.isNullOrBlank()) {
+                            TaskFlowAssigneeAvatar(name = assignee)
+                        }
                         Text(
-                            text = assignee,
+                            text = assignee?.takeIf { it.isNotBlank() }
+                                ?: stringResource(R.string.task_unassigned),
                             modifier = Modifier.weight(1f),
                             style = MaterialTheme.typography.bodyMedium,
                         )

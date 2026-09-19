@@ -10,5 +10,6 @@ interface ITaskRepository {
     suspend fun insert(task: Task): Long
     suspend fun update(task: Task)
     suspend fun delete(task: Task)
+    suspend fun getNextPosition(projectId: Long, status: TaskStatus): Int
     suspend fun updateStatus(taskId: Long, status: TaskStatus, position: Int)
 }

@@ -14,17 +14,17 @@ sealed interface HomeDestination : NavKey {
     data object Board : HomeDestination
 
     @Serializable
-    data class TaskDetails(val taskId: String) : HomeDestination
+    data class TaskDetails(val taskId: Long) : HomeDestination
 }
 
 @Stable
 class HomeNavigationState internal constructor(
     val backStack: NavBackStack<NavKey>,
 ) {
-    val selectedTaskId: String?
+    val selectedTaskId: Long?
         get() = (backStack.lastOrNull() as? HomeDestination.TaskDetails)?.taskId
 
-    fun openTask(taskId: String) {
+    fun openTask(taskId: Long) {
         val destination = HomeDestination.TaskDetails(taskId)
         if (backStack.lastOrNull() == destination) return
 

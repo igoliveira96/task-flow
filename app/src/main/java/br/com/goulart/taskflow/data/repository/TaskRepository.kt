@@ -32,6 +32,9 @@ class TaskRepository(
     override suspend fun delete(task: Task) =
         localDataSource.delete(task.asEntity())
 
+    override suspend fun getNextPosition(projectId: Long, status: TaskStatus) =
+        localDataSource.getNextPosition(projectId, status.storageValue)
+
     override suspend fun updateStatus(
         taskId: Long,
         status: TaskStatus,

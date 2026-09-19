@@ -42,6 +42,15 @@ interface TaskDao {
 
     @Query(
         """
+        SELECT COALESCE(MAX(position), -1) + 1
+        FROM tasks
+        WHERE project_id = :projectId AND status = :status
+        """
+    )
+    suspend fun getNextPosition(projectId: Long, status: String): Int
+
+    @Query(
+        """
         UPDATE tasks
         SET status = :status,
             position = :position,

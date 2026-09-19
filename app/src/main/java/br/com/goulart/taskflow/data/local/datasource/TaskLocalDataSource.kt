@@ -12,6 +12,7 @@ interface TaskLocalDataSource {
     suspend fun insert(task: TaskEntity): Long
     suspend fun update(task: TaskEntity)
     suspend fun delete(task: TaskEntity)
+    suspend fun getNextPosition(projectId: Long, status: String): Int
     suspend fun updateStatus(taskId: Long, status: String, position: Int, updatedAt: Long)
 }
 
@@ -30,6 +31,9 @@ class RoomTaskLocalDataSource(
     override suspend fun update(task: TaskEntity) = taskDao.update(task)
 
     override suspend fun delete(task: TaskEntity) = taskDao.delete(task)
+
+    override suspend fun getNextPosition(projectId: Long, status: String) =
+        taskDao.getNextPosition(projectId, status)
 
     override suspend fun updateStatus(
         taskId: Long,

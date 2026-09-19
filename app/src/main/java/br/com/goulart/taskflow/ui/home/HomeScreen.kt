@@ -2,12 +2,15 @@ package br.com.goulart.taskflow.ui.home
 
 import android.content.res.Configuration
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.gestures.ScrollableDefaults
+import androidx.compose.foundation.gestures.snapping.rememberSnapFlingBehavior
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -15,6 +18,9 @@ import androidx.compose.foundation.layout.safeDrawingPadding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Add
 import androidx.compose.material.icons.outlined.FolderOpen
@@ -37,6 +43,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.RectangleShape
+import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
@@ -44,11 +51,20 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import br.com.goulart.taskflow.R
 import br.com.goulart.taskflow.data.model.Project
+import br.com.goulart.taskflow.data.model.Task
+import br.com.goulart.taskflow.data.model.TaskStatus
+import br.com.goulart.taskflow.designsystem.component.board.TaskFlowBoardColumn
+import br.com.goulart.taskflow.designsystem.component.board.TaskFlowStatusTone
+import br.com.goulart.taskflow.designsystem.component.board.TaskFlowTaskCard
 import br.com.goulart.taskflow.designsystem.component.header.TaskFlowPageHeader
 import br.com.goulart.taskflow.designsystem.theme.TaskFlowTheme
 import br.com.goulart.taskflow.ui.home.component.CreateProjectDialog
+import br.com.goulart.taskflow.ui.home.component.CreateTaskDialog
 
 private val HomeContentPadding = 12.dp
+private val BoardColumnSpacing = 12.dp
+private val BoardColumnMinPreferredWidth = 200.dp
+private val BoardColumnMaxPreferredWidth = 320.dp
 private val HomeToolbarBreakpoint = 600.dp
 private val ProjectSelectorPreferredWidth = 280.dp
 private val EmptyStateMaxWidth = 440.dp
@@ -57,9 +73,13 @@ private val EmptyStateMaxWidth = 440.dp
 fun HomeScreen(
     uiState: HomeUiState,
     onAction: (HomeAction) -> Unit,
+    onTaskClick: (Long) -> Unit = {},
+    selectedTaskId: Long? = null,
     modifier: Modifier = Modifier,
     isPane: Boolean = false,
 ) {
+    val selectedProject = uiState.selectedProject
+
     Surface(
         modifier = modifier.fillMaxSize(),
         color = MaterialTheme.colorScheme.background,
@@ -71,32 +91,50 @@ fun HomeScreen(
             HomeHeader(
                 projects = uiState.projects,
                 selectedProjectId = uiState.selectedProjectId,
+                taskCount = uiState.tasks.size,
                 onProjectSelected = { projectId ->
                     onAction(HomeAction.ProjectSelected(projectId))
                 },
-                onCreateProjectClick = {
-                    onAction(HomeAction.OpenCreateProjectDialog)
+                onPrimaryActionClick = {
+                    onAction(
+                        if (selectedProject == null) {
+                            HomeAction.OpenCreateProjectDialog
+                        } else {
+                            HomeAction.OpenCreateTaskDialog
+                        },
+                    )
                 },
             )
-            HomeEmptyState(
-                title = stringResource(
-                    if (uiState.selectedProject == null) {
-                        R.string.home_empty_title
-                    } else {
-                        R.string.project_empty_title
-                    },
-                ),
-                description = stringResource(
-                    if (uiState.selectedProject == null) {
-                        R.string.home_empty_description
-                    } else {
-                        R.string.project_empty_description
-                    },
-                ),
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .weight(1f),
-            )
+            if (selectedProject == null || uiState.tasks.isEmpty()) {
+                HomeEmptyState(
+                    title = stringResource(
+                        if (selectedProject == null) {
+                            R.string.home_empty_title
+                        } else {
+                            R.string.project_empty_title
+                        },
+                    ),
+                    description = stringResource(
+                        if (selectedProject == null) {
+                            R.string.home_empty_description
+                        } else {
+                            R.string.project_empty_description
+                        },
+                    ),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .weight(1f),
+                )
+            } else {
+                HomeBoard(
+                    tasks = uiState.tasks,
+                    selectedTaskId = selectedTaskId,
+                    onTaskClick = onTaskClick,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .weight(1f),
+                )
+            }
         }
     }
 
@@ -117,14 +155,37 @@ fun HomeScreen(
             },
         )
     }
+
+    if (uiState.isCreateTaskDialogVisible && selectedProject != null) {
+        CreateTaskDialog(
+            projectName = selectedProject.name,
+            state = uiState.createTaskForm,
+            onTitleChange = { value ->
+                onAction(HomeAction.TaskTitleChanged(value))
+            },
+            onDescriptionChange = { value ->
+                onAction(HomeAction.TaskDescriptionChanged(value))
+            },
+            onStatusChange = { status ->
+                onAction(HomeAction.TaskStatusChanged(status))
+            },
+            onDismissRequest = {
+                onAction(HomeAction.DismissCreateTaskDialog)
+            },
+            onCreateClick = {
+                onAction(HomeAction.CreateTask)
+            },
+        )
+    }
 }
 
 @Composable
 private fun HomeHeader(
     projects: List<Project>,
     selectedProjectId: Long?,
+    taskCount: Int,
     onProjectSelected: (Long) -> Unit,
-    onCreateProjectClick: () -> Unit,
+    onPrimaryActionClick: () -> Unit,
 ) {
     BoxWithConstraints(
         modifier = Modifier
@@ -132,10 +193,20 @@ private fun HomeHeader(
             .padding(horizontal = HomeContentPadding, vertical = 24.dp),
     ) {
         val compact = maxWidth < HomeToolbarBreakpoint
+        val selectedProject = projects.firstOrNull { it.id == selectedProjectId }
         val header: @Composable (Modifier) -> Unit = { modifier ->
             TaskFlowPageHeader(
                 title = stringResource(R.string.home_title),
-                description = stringResource(R.string.home_board_subtitle),
+                description = if (selectedProject == null) {
+                    stringResource(R.string.home_board_subtitle)
+                } else {
+                    pluralStringResource(
+                        R.plurals.home_project_subtitle,
+                        taskCount,
+                        taskCount,
+                        selectedProject.name,
+                    )
+                },
                 overline = stringResource(R.string.home_workspace),
                 modifier = modifier,
             )
@@ -148,7 +219,7 @@ private fun HomeHeader(
                     projects = projects,
                     selectedProjectId = selectedProjectId,
                     onProjectSelected = onProjectSelected,
-                    onCreateProjectClick = onCreateProjectClick,
+                    onPrimaryActionClick = onPrimaryActionClick,
                     compact = true,
                 )
             }
@@ -162,7 +233,7 @@ private fun HomeHeader(
                     projects = projects,
                     selectedProjectId = selectedProjectId,
                     onProjectSelected = onProjectSelected,
-                    onCreateProjectClick = onCreateProjectClick,
+                    onPrimaryActionClick = onPrimaryActionClick,
                     compact = false,
                 )
             }
@@ -175,7 +246,7 @@ private fun HomeActions(
     projects: List<Project>,
     selectedProjectId: Long?,
     onProjectSelected: (Long) -> Unit,
-    onCreateProjectClick: () -> Unit,
+    onPrimaryActionClick: () -> Unit,
     compact: Boolean,
 ) {
     val selector: @Composable (Modifier) -> Unit = { modifier ->
@@ -189,7 +260,7 @@ private fun HomeActions(
     }
     val createButton: @Composable (Modifier) -> Unit = { modifier ->
         FilledTonalButton(
-            onClick = onCreateProjectClick,
+            onClick = onPrimaryActionClick,
             modifier = modifier,
             contentPadding = if (compact) {
                 PaddingValues(horizontal = 12.dp)
@@ -199,7 +270,13 @@ private fun HomeActions(
         ) {
             Icon(imageVector = Icons.Outlined.Add, contentDescription = null)
             Text(
-                text = stringResource(R.string.new_project),
+                text = stringResource(
+                    if (selectedProjectId == null) {
+                        R.string.new_project
+                    } else {
+                        R.string.new_task
+                    },
+                ),
                 modifier = Modifier.padding(start = 8.dp),
                 maxLines = 1,
             )
@@ -224,6 +301,76 @@ private fun HomeActions(
             createButton(Modifier)
         }
     }
+}
+
+@Composable
+private fun HomeBoard(
+    tasks: List<Task>,
+    selectedTaskId: Long?,
+    onTaskClick: (Long) -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    BoxWithConstraints(modifier = modifier) {
+        val contentWidth = (maxWidth - HomeContentPadding * 2).coerceAtLeast(1.dp)
+        val visibleColumnCount = (
+            (contentWidth + BoardColumnSpacing) /
+                (BoardColumnMinPreferredWidth + BoardColumnSpacing)
+            ).toInt().coerceIn(1, TaskStatus.entries.size)
+        val availableColumnWidth =
+            (contentWidth - BoardColumnSpacing * (visibleColumnCount - 1)) /
+                visibleColumnCount
+        val columnWidth = availableColumnWidth.coerceAtMost(BoardColumnMaxPreferredWidth)
+        val listState = rememberLazyListState()
+
+        LazyRow(
+            modifier = Modifier.fillMaxSize(),
+            state = listState,
+            flingBehavior = if (visibleColumnCount == 1) {
+                rememberSnapFlingBehavior(listState)
+            } else {
+                ScrollableDefaults.flingBehavior()
+            },
+            contentPadding = PaddingValues(
+                start = HomeContentPadding,
+                end = HomeContentPadding,
+                bottom = HomeContentPadding,
+            ),
+            horizontalArrangement = Arrangement.spacedBy(BoardColumnSpacing),
+        ) {
+            items(TaskStatus.entries, key = { it.storageValue }) { status ->
+                val statusTasks = tasks.filter { it.status == status }
+                TaskFlowBoardColumn(
+                    title = stringResource(status.titleResource()),
+                    items = statusTasks,
+                    tone = status.tone(),
+                    modifier = Modifier
+                        .width(columnWidth)
+                        .fillMaxHeight(),
+                ) { task ->
+                    TaskFlowTaskCard(
+                        taskId = task.code,
+                        title = task.title,
+                        description = task.description,
+                        assignee = task.assignee?.name,
+                        selected = task.id == selectedTaskId,
+                        onClick = { onTaskClick(task.id) },
+                    )
+                }
+            }
+        }
+    }
+}
+
+private fun TaskStatus.titleResource() = when (this) {
+    TaskStatus.TODO -> R.string.task_status_todo
+    TaskStatus.IN_PROGRESS -> R.string.task_status_in_progress
+    TaskStatus.DONE -> R.string.task_status_done
+}
+
+private fun TaskStatus.tone() = when (this) {
+    TaskStatus.TODO -> TaskFlowStatusTone.Neutral
+    TaskStatus.IN_PROGRESS -> TaskFlowStatusTone.Information
+    TaskStatus.DONE -> TaskFlowStatusTone.Success
 }
 
 @Composable
