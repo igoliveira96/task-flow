@@ -22,6 +22,7 @@ import br.com.goulart.taskflow.designsystem.component.navigation.TaskFlowNavigat
 import br.com.goulart.taskflow.designsystem.component.navigation.TaskFlowNavigationType
 import br.com.goulart.taskflow.ui.home.HomeRoute
 import br.com.goulart.taskflow.ui.home.navigation.rememberHomeNavigationState
+import br.com.goulart.taskflow.ui.projects.ProjectsRoute
 
 @Composable
 fun TaskFlowApp(
@@ -61,14 +62,20 @@ fun TaskFlowApp(
     }
 
     val content: @Composable () -> Unit = {
-        if (selectedIndex == 0) {
-            homeStateHolder.SaveableStateProvider(key = "home") {
-                HomeRoute(navigationState = homeNavigationState)
+        when (selectedIndex) {
+            0 -> {
+                homeStateHolder.SaveableStateProvider(key = "home") {
+                    HomeRoute(navigationState = homeNavigationState)
+                }
             }
-        } else {
-            Text(
-                text = navigationItems[selectedIndex].label,
-            )
+            1 -> {
+                ProjectsRoute()
+            }
+            else -> {
+                Text(
+                    text = navigationItems[selectedIndex].label,
+                )
+            }
         }
     }
 
