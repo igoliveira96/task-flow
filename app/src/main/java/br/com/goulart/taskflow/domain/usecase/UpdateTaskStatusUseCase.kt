@@ -2,7 +2,9 @@ package br.com.goulart.taskflow.domain.usecase
 
 import br.com.goulart.taskflow.data.model.TaskStatus
 import br.com.goulart.taskflow.data.repository.ITaskRepository
+import org.koin.core.annotation.Factory
 
+@Factory
 class UpdateTaskStatusUseCase(
     private val iTaskRepository: ITaskRepository,
 ) {

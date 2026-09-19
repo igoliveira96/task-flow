@@ -3,6 +3,7 @@ package br.com.goulart.taskflow.data.local.datasource
 import br.com.goulart.taskflow.data.local.dao.AssigneeDao
 import br.com.goulart.taskflow.data.local.entity.AssigneeEntity
 import kotlinx.coroutines.flow.Flow
+import org.koin.core.annotation.Single
 
 interface AssigneeLocalDataSource {
     fun getAssigneesStream(): Flow<List<AssigneeEntity>>
@@ -12,6 +13,7 @@ interface AssigneeLocalDataSource {
     suspend fun delete(assignee: AssigneeEntity)
 }
 
+@Single
 class RoomAssigneeLocalDataSource(
     private val assigneeDao: AssigneeDao,
 ) : AssigneeLocalDataSource {

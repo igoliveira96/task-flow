@@ -3,6 +3,7 @@ package br.com.goulart.taskflow.data.local.datasource
 import br.com.goulart.taskflow.data.local.dao.ProjectDao
 import br.com.goulart.taskflow.data.local.entity.ProjectEntity
 import kotlinx.coroutines.flow.Flow
+import org.koin.core.annotation.Single
 
 interface ProjectLocalDataSource {
     fun getProjectsStream(): Flow<List<ProjectEntity>>
@@ -12,6 +13,7 @@ interface ProjectLocalDataSource {
     suspend fun delete(project: ProjectEntity)
 }
 
+@Single
 class RoomProjectLocalDataSource(
     private val projectDao: ProjectDao,
 ) : ProjectLocalDataSource {

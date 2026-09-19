@@ -5,7 +5,9 @@ import br.com.goulart.taskflow.data.mapper.asEntity
 import br.com.goulart.taskflow.data.mapper.asExternalModel
 import br.com.goulart.taskflow.data.model.Assignee
 import kotlinx.coroutines.flow.map
+import org.koin.core.annotation.Single
 
+@Single
 class AssigneeRepository(
     private val localDataSource: AssigneeLocalDataSource,
 ) : IAssigneeRepository {

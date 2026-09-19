@@ -6,7 +6,9 @@ import br.com.goulart.taskflow.data.mapper.asExternalModel
 import br.com.goulart.taskflow.data.model.Task
 import br.com.goulart.taskflow.data.model.TaskStatus
 import kotlinx.coroutines.flow.map
+import org.koin.core.annotation.Single
 
+@Single
 class TaskRepository(
     private val localDataSource: TaskLocalDataSource,
     private val currentTimeMillis: () -> Long = System::currentTimeMillis,

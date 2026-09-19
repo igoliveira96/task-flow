@@ -4,6 +4,7 @@ import br.com.goulart.taskflow.data.local.dao.TaskDao
 import br.com.goulart.taskflow.data.local.entity.TaskEntity
 import br.com.goulart.taskflow.data.local.relation.TaskWithAssignee
 import kotlinx.coroutines.flow.Flow
+import org.koin.core.annotation.Single
 
 interface TaskLocalDataSource {
     fun getTasksWithAssigneeStream(projectId: Long): Flow<List<TaskWithAssignee>>
@@ -14,6 +15,7 @@ interface TaskLocalDataSource {
     suspend fun updateStatus(taskId: Long, status: String, position: Int, updatedAt: Long)
 }
 
+@Single
 class RoomTaskLocalDataSource(
     private val taskDao: TaskDao,
 ) : TaskLocalDataSource {

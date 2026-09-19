@@ -3,7 +3,9 @@ package br.com.goulart.taskflow.domain.usecase
 import br.com.goulart.taskflow.data.model.Task
 import br.com.goulart.taskflow.data.repository.ITaskRepository
 import kotlinx.coroutines.flow.Flow
+import org.koin.core.annotation.Factory
 
+@Factory
 class GetProjectTasksUseCase(
     private val iTaskRepository: ITaskRepository,
 ) {
