@@ -64,7 +64,6 @@ import br.com.goulart.taskflow.ui.home.component.CreateTaskDialog
 private val HomeContentPadding = 12.dp
 private val BoardColumnSpacing = 12.dp
 private val BoardColumnMinPreferredWidth = 200.dp
-private val BoardColumnMaxPreferredWidth = 320.dp
 private val HomeToolbarBreakpoint = 600.dp
 private val ProjectSelectorPreferredWidth = 280.dp
 private val EmptyStateMaxWidth = 440.dp
@@ -319,7 +318,6 @@ private fun HomeBoard(
         val availableColumnWidth =
             (contentWidth - BoardColumnSpacing * (visibleColumnCount - 1)) /
                 visibleColumnCount
-        val columnWidth = availableColumnWidth.coerceAtMost(BoardColumnMaxPreferredWidth)
         val listState = rememberLazyListState()
 
         LazyRow(
@@ -344,7 +342,7 @@ private fun HomeBoard(
                     items = statusTasks,
                     tone = status.tone(),
                     modifier = Modifier
-                        .width(columnWidth)
+                        .width(availableColumnWidth)
                         .fillMaxHeight(),
                 ) { task ->
                     TaskFlowTaskCard(
