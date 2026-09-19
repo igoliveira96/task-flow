@@ -43,25 +43,20 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import br.com.goulart.taskflow.R
+import br.com.goulart.taskflow.data.model.Project
 import br.com.goulart.taskflow.designsystem.component.header.TaskFlowPageHeader
 import br.com.goulart.taskflow.designsystem.theme.TaskFlowTheme
+import br.com.goulart.taskflow.ui.home.component.CreateProjectDialog
 
 private val HomeContentPadding = 12.dp
 private val HomeToolbarBreakpoint = 600.dp
 private val ProjectSelectorPreferredWidth = 280.dp
 private val EmptyStateMaxWidth = 440.dp
 
-data class ProjectSelectorOption(
-    val id: Long,
-    val name: String,
-)
-
 @Composable
 fun HomeScreen(
-    onCreateProjectClick: () -> Unit = {},
-    projects: List<ProjectSelectorOption> = emptyList(),
-    selectedProjectId: Long? = null,
-    onProjectSelected: (Long) -> Unit = {},
+    uiState: HomeUiState,
+    onAction: (HomeAction) -> Unit,
     modifier: Modifier = Modifier,
     isPane: Boolean = false,
 ) {
@@ -74,23 +69,59 @@ fun HomeScreen(
             modifier = Modifier.safeDrawingPadding(),
         ) {
             HomeHeader(
-                projects = projects,
-                selectedProjectId = selectedProjectId,
-                onProjectSelected = onProjectSelected,
-                onCreateProjectClick = onCreateProjectClick,
+                projects = uiState.projects,
+                selectedProjectId = uiState.selectedProjectId,
+                onProjectSelected = { projectId ->
+                    onAction(HomeAction.ProjectSelected(projectId))
+                },
+                onCreateProjectClick = {
+                    onAction(HomeAction.OpenCreateProjectDialog)
+                },
             )
             HomeEmptyState(
+                title = stringResource(
+                    if (uiState.selectedProject == null) {
+                        R.string.home_empty_title
+                    } else {
+                        R.string.project_empty_title
+                    },
+                ),
+                description = stringResource(
+                    if (uiState.selectedProject == null) {
+                        R.string.home_empty_description
+                    } else {
+                        R.string.project_empty_description
+                    },
+                ),
                 modifier = Modifier
                     .fillMaxWidth()
                     .weight(1f),
             )
         }
     }
+
+    if (uiState.isCreateProjectDialogVisible) {
+        CreateProjectDialog(
+            state = uiState.createProjectForm,
+            onNameChange = { value ->
+                onAction(HomeAction.ProjectNameChanged(value))
+            },
+            onDescriptionChange = { value ->
+                onAction(HomeAction.ProjectDescriptionChanged(value))
+            },
+            onDismissRequest = {
+                onAction(HomeAction.DismissCreateProjectDialog)
+            },
+            onCreateClick = {
+                onAction(HomeAction.CreateProject)
+            },
+        )
+    }
 }
 
 @Composable
 private fun HomeHeader(
-    projects: List<ProjectSelectorOption>,
+    projects: List<Project>,
     selectedProjectId: Long?,
     onProjectSelected: (Long) -> Unit,
     onCreateProjectClick: () -> Unit,
@@ -141,7 +172,7 @@ private fun HomeHeader(
 
 @Composable
 private fun HomeActions(
-    projects: List<ProjectSelectorOption>,
+    projects: List<Project>,
     selectedProjectId: Long?,
     onProjectSelected: (Long) -> Unit,
     onCreateProjectClick: () -> Unit,
@@ -197,6 +228,8 @@ private fun HomeActions(
 
 @Composable
 private fun HomeEmptyState(
+    title: String,
+    description: String,
     modifier: Modifier = Modifier,
 ) {
     Box(
@@ -224,13 +257,13 @@ private fun HomeEmptyState(
                 )
             }
             Text(
-                text = stringResource(R.string.home_empty_title),
+                text = title,
                 style = MaterialTheme.typography.headlineSmall,
                 color = MaterialTheme.colorScheme.onSurface,
                 textAlign = TextAlign.Center,
             )
             Text(
-                text = stringResource(R.string.home_empty_description),
+                text = description,
                 style = MaterialTheme.typography.bodyLarge,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                 textAlign = TextAlign.Center,
@@ -241,7 +274,7 @@ private fun HomeEmptyState(
 
 @Composable
 private fun ProjectSelector(
-    projects: List<ProjectSelectorOption>,
+    projects: List<Project>,
     selectedProjectId: Long?,
     onProjectSelected: (Long) -> Unit,
     compact: Boolean,
@@ -331,6 +364,9 @@ private fun ProjectSelector(
 @Composable
 private fun HomeScreenPreview() {
     TaskFlowTheme {
-        HomeScreen()
+        HomeScreen(
+            uiState = HomeUiState(),
+            onAction = {},
+        )
     }
 }
