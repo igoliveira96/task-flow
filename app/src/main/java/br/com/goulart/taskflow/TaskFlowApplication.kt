@@ -1,15 +1,19 @@
 package br.com.goulart.taskflow
 
 import android.app.Application
-import br.com.goulart.taskflow.di.AppContainer
-import br.com.goulart.taskflow.di.DefaultAppContainer
+import br.com.goulart.taskflow.di.appModules
+import org.koin.android.ext.koin.androidContext
+import org.koin.android.ext.koin.androidLogger
+import org.koin.core.context.startKoin
 
 class TaskFlowApplication : Application() {
-    lateinit var container: AppContainer
-        private set
-
     override fun onCreate() {
         super.onCreate()
-        container = DefaultAppContainer(this)
+
+        startKoin {
+            androidLogger()
+            androidContext(this@TaskFlowApplication)
+            modules(appModules)
+        }
     }
 }
