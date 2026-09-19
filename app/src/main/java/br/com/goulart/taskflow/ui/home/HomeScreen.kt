@@ -2,28 +2,25 @@ package br.com.goulart.taskflow.ui.home
 
 import android.content.res.Configuration
 import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.gestures.ScrollableDefaults
-import androidx.compose.foundation.gestures.snapping.rememberSnapFlingBehavior
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawingPadding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.lazy.LazyRow
-import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Add
 import androidx.compose.material.icons.outlined.FolderOpen
 import androidx.compose.material.icons.outlined.KeyboardArrowDown
 import androidx.compose.material.icons.outlined.KeyboardArrowUp
+import androidx.compose.material.icons.outlined.ViewKanban
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
@@ -41,21 +38,18 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import br.com.goulart.taskflow.R
-import br.com.goulart.taskflow.designsystem.component.board.TaskFlowBoardColumn
-import br.com.goulart.taskflow.designsystem.component.board.TaskFlowTaskCard
 import br.com.goulart.taskflow.designsystem.component.header.TaskFlowPageHeader
 import br.com.goulart.taskflow.designsystem.theme.TaskFlowTheme
 
-private val BoardContentPadding = 12.dp
-private val BoardColumnSpacing = 12.dp
-private val BoardColumnMinPreferredWidth = 200.dp
-private val BoardColumnMaxPreferredWidth = 320.dp
-private val BoardToolbarBreakpoint = 600.dp
+private val HomeContentPadding = 12.dp
+private val HomeToolbarBreakpoint = 600.dp
 private val ProjectSelectorPreferredWidth = 280.dp
+private val EmptyStateMaxWidth = 440.dp
 
 data class ProjectSelectorOption(
     val id: Long,
@@ -64,14 +58,11 @@ data class ProjectSelectorOption(
 
 @Composable
 fun HomeScreen(
-    onTaskClick: (String) -> Unit,
-    onCreateTaskClick: () -> Unit = {},
+    onCreateProjectClick: () -> Unit = {},
     projects: List<ProjectSelectorOption> = emptyList(),
     selectedProjectId: Long? = null,
     onProjectSelected: (Long) -> Unit = {},
-    selectedTaskId: String? = null,
     modifier: Modifier = Modifier,
-    singleColumn: Boolean = false,
     isPane: Boolean = false,
 ) {
     Surface(
@@ -82,97 +73,38 @@ fun HomeScreen(
         Column(
             modifier = Modifier.safeDrawingPadding(),
         ) {
-            HomeBoardHeader(
+            HomeHeader(
                 projects = projects,
                 selectedProjectId = selectedProjectId,
                 onProjectSelected = onProjectSelected,
-                onCreateTaskClick = onCreateTaskClick,
+                onCreateProjectClick = onCreateProjectClick,
             )
-
-            BoxWithConstraints(
+            HomeEmptyState(
                 modifier = Modifier
                     .fillMaxWidth()
                     .weight(1f),
-            ) {
-                val contentWidth = (maxWidth - BoardContentPadding * 2).coerceAtLeast(1.dp)
-                val visibleColumnCount = if (singleColumn) {
-                    1
-                } else {
-                    ((contentWidth + BoardColumnSpacing) /
-                        (BoardColumnMinPreferredWidth + BoardColumnSpacing))
-                        .toInt()
-                        .coerceIn(1, homeMockColumns.size)
-                }
-                val availableColumnWidth =
-                    (contentWidth - BoardColumnSpacing * (visibleColumnCount - 1)) / visibleColumnCount
-                val columnWidth = if (singleColumn) {
-                    availableColumnWidth
-                } else {
-                    availableColumnWidth.coerceAtMost(BoardColumnMaxPreferredWidth)
-                }
-                val listState = rememberLazyListState()
-
-                LazyRow(
-                    modifier = Modifier.fillMaxSize(),
-                    state = listState,
-                    flingBehavior = if (singleColumn) {
-                        rememberSnapFlingBehavior(listState)
-                    } else {
-                        ScrollableDefaults.flingBehavior()
-                    },
-                    contentPadding = PaddingValues(
-                        start = BoardContentPadding,
-                        end = BoardContentPadding,
-                        bottom = BoardContentPadding,
-                    ),
-                    horizontalArrangement = Arrangement.spacedBy(BoardColumnSpacing),
-                ) {
-                    items(homeMockColumns, key = { it.id }) { column ->
-                        TaskFlowBoardColumn(
-                            title = column.title,
-                            items = column.tasks,
-                            tone = column.tone,
-                            modifier = Modifier
-                                .width(columnWidth)
-                                .fillMaxHeight(),
-                        ) { task ->
-                            TaskFlowTaskCard(
-                                taskId = task.id,
-                                title = task.title,
-                                description = task.description,
-                                assignee = task.assignee,
-                                onClick = { onTaskClick(task.id) },
-                                selected = task.id == selectedTaskId,
-                            )
-                        }
-                    }
-                }
-            }
+            )
         }
     }
 }
 
 @Composable
-private fun HomeBoardHeader(
+private fun HomeHeader(
     projects: List<ProjectSelectorOption>,
     selectedProjectId: Long?,
     onProjectSelected: (Long) -> Unit,
-    onCreateTaskClick: () -> Unit,
+    onCreateProjectClick: () -> Unit,
 ) {
     BoxWithConstraints(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(horizontal = BoardContentPadding, vertical = 24.dp),
+            .padding(horizontal = HomeContentPadding, vertical = 24.dp),
     ) {
-        val compact = maxWidth < BoardToolbarBreakpoint
+        val compact = maxWidth < HomeToolbarBreakpoint
         val header: @Composable (Modifier) -> Unit = { modifier ->
             TaskFlowPageHeader(
                 title = stringResource(R.string.home_title),
-                description = stringResource(
-                    R.string.home_board_subtitle,
-                    homeMockColumns.sumOf { it.tasks.size },
-                    homeMockColumns.size,
-                ),
+                description = stringResource(R.string.home_board_subtitle),
                 overline = stringResource(R.string.home_workspace),
                 modifier = modifier,
             )
@@ -181,11 +113,11 @@ private fun HomeBoardHeader(
         if (compact) {
             Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
                 header(Modifier.fillMaxWidth())
-                HomeBoardActions(
+                HomeActions(
                     projects = projects,
                     selectedProjectId = selectedProjectId,
                     onProjectSelected = onProjectSelected,
-                    onCreateTaskClick = onCreateTaskClick,
+                    onCreateProjectClick = onCreateProjectClick,
                     compact = true,
                 )
             }
@@ -195,11 +127,11 @@ private fun HomeBoardHeader(
                 verticalAlignment = Alignment.Bottom,
             ) {
                 header(Modifier.weight(1f))
-                HomeBoardActions(
+                HomeActions(
                     projects = projects,
                     selectedProjectId = selectedProjectId,
                     onProjectSelected = onProjectSelected,
-                    onCreateTaskClick = onCreateTaskClick,
+                    onCreateProjectClick = onCreateProjectClick,
                     compact = false,
                 )
             }
@@ -208,11 +140,11 @@ private fun HomeBoardHeader(
 }
 
 @Composable
-private fun HomeBoardActions(
+private fun HomeActions(
     projects: List<ProjectSelectorOption>,
     selectedProjectId: Long?,
     onProjectSelected: (Long) -> Unit,
-    onCreateTaskClick: () -> Unit,
+    onCreateProjectClick: () -> Unit,
     compact: Boolean,
 ) {
     val selector: @Composable (Modifier) -> Unit = { modifier ->
@@ -226,7 +158,7 @@ private fun HomeBoardActions(
     }
     val createButton: @Composable (Modifier) -> Unit = { modifier ->
         FilledTonalButton(
-            onClick = onCreateTaskClick,
+            onClick = onCreateProjectClick,
             modifier = modifier,
             contentPadding = if (compact) {
                 PaddingValues(horizontal = 12.dp)
@@ -236,8 +168,9 @@ private fun HomeBoardActions(
         ) {
             Icon(imageVector = Icons.Outlined.Add, contentDescription = null)
             Text(
-                text = stringResource(R.string.new_task),
+                text = stringResource(R.string.new_project),
                 modifier = Modifier.padding(start = 8.dp),
+                maxLines = 1,
             )
         }
     }
@@ -258,6 +191,50 @@ private fun HomeBoardActions(
         ) {
             selector(Modifier.width(ProjectSelectorPreferredWidth))
             createButton(Modifier)
+        }
+    }
+}
+
+@Composable
+private fun HomeEmptyState(
+    modifier: Modifier = Modifier,
+) {
+    Box(
+        modifier = modifier.padding(HomeContentPadding),
+        contentAlignment = Alignment.Center,
+    ) {
+        Column(
+            modifier = Modifier
+                .widthIn(max = EmptyStateMaxWidth)
+                .padding(horizontal = 24.dp, vertical = 32.dp),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.spacedBy(12.dp),
+        ) {
+            Surface(
+                shape = MaterialTheme.shapes.extraLarge,
+                color = MaterialTheme.colorScheme.surfaceContainerHigh,
+                contentColor = MaterialTheme.colorScheme.onSurfaceVariant,
+            ) {
+                Icon(
+                    imageVector = Icons.Outlined.ViewKanban,
+                    contentDescription = null,
+                    modifier = Modifier
+                        .padding(16.dp)
+                        .size(32.dp),
+                )
+            }
+            Text(
+                text = stringResource(R.string.home_empty_title),
+                style = MaterialTheme.typography.headlineSmall,
+                color = MaterialTheme.colorScheme.onSurface,
+                textAlign = TextAlign.Center,
+            )
+            Text(
+                text = stringResource(R.string.home_empty_description),
+                style = MaterialTheme.typography.bodyLarge,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                textAlign = TextAlign.Center,
+            )
         }
     }
 }
@@ -342,10 +319,10 @@ private fun ProjectSelector(
     }
 }
 
-@Preview(name = "Home - Phone", showBackground = true, widthDp = 360, heightDp = 800)
-@Preview(name = "Home - Tablet", showBackground = true, widthDp = 1100, heightDp = 800)
+@Preview(name = "Home empty - Phone", showBackground = true, widthDp = 360, heightDp = 800)
+@Preview(name = "Home empty - Tablet", showBackground = true, widthDp = 1100, heightDp = 800)
 @Preview(
-    name = "Home - Dark",
+    name = "Home empty - Dark",
     showBackground = true,
     widthDp = 360,
     heightDp = 800,
@@ -354,6 +331,6 @@ private fun ProjectSelector(
 @Composable
 private fun HomeScreenPreview() {
     TaskFlowTheme {
-        HomeScreen(onTaskClick = {})
+        HomeScreen()
     }
 }

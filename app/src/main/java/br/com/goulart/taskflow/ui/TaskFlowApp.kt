@@ -21,7 +21,6 @@ import br.com.goulart.taskflow.designsystem.component.navigation.TaskFlowNavigat
 import br.com.goulart.taskflow.designsystem.component.navigation.TaskFlowNavigationSuite
 import br.com.goulart.taskflow.designsystem.component.navigation.TaskFlowNavigationType
 import br.com.goulart.taskflow.ui.home.HomeRoute
-import br.com.goulart.taskflow.ui.home.navigation.rememberHomeNavigationState
 
 @Composable
 fun TaskFlowApp(
@@ -36,7 +35,6 @@ fun TaskFlowApp(
     var selectedIndex by rememberSaveable {
         mutableIntStateOf(0)
     }
-    val homeNavigationState = rememberHomeNavigationState()
     val homeStateHolder = rememberSaveableStateHolder()
 
     val navigationItems = remember {
@@ -63,9 +61,7 @@ fun TaskFlowApp(
     val content: @Composable () -> Unit = {
         if (selectedIndex == 0) {
             homeStateHolder.SaveableStateProvider(key = "home") {
-                HomeRoute(
-                    navigationState = homeNavigationState,
-                )
+                HomeRoute()
             }
         } else {
             Text(
@@ -74,11 +70,8 @@ fun TaskFlowApp(
         }
     }
 
-    val showHomeWithoutNavigation = selectedIndex == 0 && (
-        windowAdaptiveInfo.windowPosture.isTabletop ||
-            (navigationType == TaskFlowNavigationType.BOTTOM_BAR &&
-                homeNavigationState.selectedTaskId != null)
-        )
+    val showHomeWithoutNavigation =
+        selectedIndex == 0 && windowAdaptiveInfo.windowPosture.isTabletop
 
     if (showHomeWithoutNavigation) {
         Box(modifier = modifier) { content() }
@@ -89,7 +82,6 @@ fun TaskFlowApp(
             selectedIndex = selectedIndex,
             onItemClick = { index ->
                 selectedIndex = index
-                homeNavigationState.closeTask()
             },
             modifier = modifier,
             content = content,
