@@ -6,32 +6,37 @@ import androidx.compose.material.icons.outlined.Home
 import androidx.compose.material.icons.outlined.Settings
 import androidx.compose.material.icons.outlined.ViewKanban
 import androidx.compose.material3.Text
-import androidx.compose.material3.adaptive.currentWindowAdaptiveInfo
+import androidx.compose.material3.adaptive.currentWindowAdaptiveInfoV2
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.saveable.rememberSaveableStateHolder
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.window.core.layout.WindowSizeClass
 import br.com.goulart.taskflow.designsystem.component.navigation.TaskFlowNavigationItem
 import br.com.goulart.taskflow.designsystem.component.navigation.TaskFlowNavigationSuite
 import br.com.goulart.taskflow.designsystem.component.navigation.TaskFlowNavigationType
-import br.com.goulart.taskflow.ui.home.HomeScreen
+import br.com.goulart.taskflow.ui.home.HomeRoute
+import br.com.goulart.taskflow.ui.home.navigation.rememberHomeNavigationState
 
 @Composable
 fun TaskFlowApp(
     modifier: Modifier = Modifier,
 ) {
     val windowSizeClass =
-        currentWindowAdaptiveInfo().windowSizeClass
+        currentWindowAdaptiveInfoV2().windowSizeClass
 
     val navigationType =
         navigationType(windowSizeClass)
 
-    var selectedIndex by remember {
+    var selectedIndex by rememberSaveable {
         mutableIntStateOf(0)
     }
+    val homeNavigationState = rememberHomeNavigationState()
+    val homeStateHolder = rememberSaveableStateHolder()
 
     val navigationItems = remember {
         listOf(
@@ -60,11 +65,16 @@ fun TaskFlowApp(
         selectedIndex = selectedIndex,
         onItemClick = { index ->
             selectedIndex = index
+            homeNavigationState.closeTask()
         },
         modifier = modifier,
     ) {
         if (selectedIndex == 0) {
-            HomeScreen()
+            homeStateHolder.SaveableStateProvider(key = "home") {
+                HomeRoute(
+                    navigationState = homeNavigationState,
+                )
+            }
         } else {
             Text(
                 text = navigationItems[selectedIndex].label,

@@ -28,6 +28,8 @@ import br.com.goulart.taskflow.designsystem.theme.TaskFlowTheme
 
 @Composable
 fun HomeScreen(
+    onTaskClick: (String) -> Unit,
+    selectedTaskId: String? = null,
     modifier: Modifier = Modifier,
 ) {
     Surface(
@@ -68,6 +70,8 @@ fun HomeScreen(
                                 title = task.title,
                                 description = task.description,
                                 assignee = task.assignee,
+                                onClick = { onTaskClick(task.id) },
+                                selected = task.id == selectedTaskId,
                             )
                         }
                     }
@@ -89,6 +93,6 @@ fun HomeScreen(
 @Composable
 private fun HomeScreenPreview() {
     TaskFlowTheme {
-        HomeScreen()
+        HomeScreen(onTaskClick = {})
     }
 }

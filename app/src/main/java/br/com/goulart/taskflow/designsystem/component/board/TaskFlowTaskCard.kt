@@ -1,6 +1,7 @@
 package br.com.goulart.taskflow.designsystem.component.board
 
 import android.content.res.Configuration
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -21,12 +22,17 @@ fun TaskFlowTaskCard(
     title: String,
     description: String,
     assignee: String,
+    onClick: () -> Unit,
+    selected: Boolean = false,
     modifier: Modifier = Modifier,
 ) {
     Surface(
+        selected = selected,
+        onClick = onClick,
         modifier = modifier.fillMaxWidth(),
         shape = MaterialTheme.shapes.medium,
         color = MaterialTheme.colorScheme.surfaceContainerLowest,
+        border = if (selected) BorderStroke(1.dp, MaterialTheme.colorScheme.primary) else null,
     ) {
         Column(
             modifier = Modifier.padding(16.dp),
@@ -76,6 +82,7 @@ private fun TaskFlowTaskCardPreview() {
             title = "Create project overview",
             description = "Show project progress and upcoming milestones.",
             assignee = "Ana Silva",
+            onClick = {},
         )
     }
 }
