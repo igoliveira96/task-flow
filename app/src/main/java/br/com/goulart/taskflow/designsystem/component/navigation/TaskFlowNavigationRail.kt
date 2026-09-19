@@ -4,10 +4,8 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxHeight
-import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.statusBars
-import androidx.compose.foundation.layout.union
+import androidx.compose.foundation.layout.safeDrawing
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.material.icons.Icons
@@ -16,13 +14,16 @@ import androidx.compose.material.icons.outlined.Home
 import androidx.compose.material.icons.outlined.Settings
 import androidx.compose.material.icons.outlined.ViewKanban
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationDrawerItem
+import androidx.compose.material3.NavigationDrawerItemDefaults
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import br.com.goulart.taskflow.ui.theme.TaskFlowTheme
+import br.com.goulart.taskflow.designsystem.theme.TaskFlowTheme
 
 @Composable
 fun TaskFlowNavigationRail(
@@ -31,25 +32,27 @@ fun TaskFlowNavigationRail(
     onItemClick: (Int) -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    Column(
+    Surface(
         modifier = modifier
             .fillMaxHeight()
-            .width(240.dp)
-            .windowInsetsPadding(
-                WindowInsets.statusBars
-                    .union(WindowInsets.navigationBars)
-            )
-            .padding(12.dp),
-        verticalArrangement = Arrangement.spacedBy(12.dp),
+            .width(240.dp),
+        color = MaterialTheme.colorScheme.surface,
     ) {
-        items.forEachIndexed { index, item ->
-            TaskFlowNavigationRailItem(
-                item = item,
-                selected = selectedIndex == index,
-                onClick = {
-                    onItemClick(index)
-                },
-            )
+        Column(
+            modifier = Modifier
+                .windowInsetsPadding(WindowInsets.safeDrawing)
+                .padding(horizontal = 12.dp),
+            verticalArrangement = Arrangement.spacedBy(4.dp),
+        ) {
+            items.forEachIndexed { index, item ->
+                TaskFlowNavigationRailItem(
+                    item = item,
+                    selected = selectedIndex == index,
+                    onClick = {
+                        onItemClick(index)
+                    },
+                )
+            }
         }
     }
 }
@@ -63,17 +66,27 @@ private fun TaskFlowNavigationRailItem(
 ) {
     NavigationDrawerItem(
         label = {
-            Text(text = item.label)
+            Text(
+                text = item.label,
+                style = MaterialTheme.typography.labelLarge,
+            )
         },
         selected = selected,
         onClick = onClick,
         icon = {
             Icon(
                 imageVector = item.icon,
-                contentDescription = null,
+                contentDescription = item.label,
             )
         },
-        modifier = modifier,
+        colors = NavigationDrawerItemDefaults.colors(
+            selectedContainerColor = MaterialTheme.colorScheme.primaryContainer,
+            selectedIconColor = MaterialTheme.colorScheme.onPrimaryContainer,
+            selectedTextColor = MaterialTheme.colorScheme.onPrimaryContainer,
+            unselectedContainerColor = MaterialTheme.colorScheme.surface,
+            unselectedIconColor = MaterialTheme.colorScheme.onSurfaceVariant,
+            unselectedTextColor = MaterialTheme.colorScheme.onSurfaceVariant,
+        ),
     )
 }
 

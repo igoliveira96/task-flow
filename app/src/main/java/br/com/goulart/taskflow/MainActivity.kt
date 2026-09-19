@@ -12,7 +12,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import br.com.goulart.taskflow.ui.TaskFlowApp
-import br.com.goulart.taskflow.ui.theme.TaskFlowTheme
+import br.com.goulart.taskflow.designsystem.theme.TaskFlowTheme
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {

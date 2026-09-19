@@ -1,4 +1,4 @@
-package br.com.goulart.taskflow.ui.theme
+package br.com.goulart.taskflow.designsystem.theme
 
 import androidx.compose.material3.Typography
 import androidx.compose.ui.text.TextStyle
