@@ -1,3 +1,5 @@
 <resources>
     <string name="app_name">TaskFlow</string>
+    <string name="home_title">Home</string>
+    <string name="home_board_subtitle">TaskFlow · Team board</string>
 </resources>

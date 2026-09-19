@@ -17,6 +17,7 @@ import androidx.window.core.layout.WindowSizeClass
 import br.com.goulart.taskflow.designsystem.component.navigation.TaskFlowNavigationItem
 import br.com.goulart.taskflow.designsystem.component.navigation.TaskFlowNavigationSuite
 import br.com.goulart.taskflow.designsystem.component.navigation.TaskFlowNavigationType
+import br.com.goulart.taskflow.ui.home.HomeScreen
 
 @Composable
 fun TaskFlowApp(
@@ -62,9 +63,13 @@ fun TaskFlowApp(
         },
         modifier = modifier,
     ) {
-        Text(
-            text = navigationItems[selectedIndex].label,
-        )
+        if (selectedIndex == 0) {
+            HomeScreen()
+        } else {
+            Text(
+                text = navigationItems[selectedIndex].label,
+            )
+        }
     }
 }
 
