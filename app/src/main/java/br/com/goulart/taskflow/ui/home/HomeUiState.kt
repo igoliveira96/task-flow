@@ -12,6 +12,8 @@ data class HomeUiState(
     val createProjectForm: CreateProjectFormState = CreateProjectFormState(),
     val isCreateTaskDialogVisible: Boolean = false,
     val createTaskForm: CreateTaskFormState = CreateTaskFormState(),
+    val movingTaskIds: Set<Long> = emptySet(),
+    val taskMoveError: TaskMoveError? = null,
 ) {
     val selectedProject: Project?
         get() = projects.firstOrNull { it.id == selectedProjectId }
@@ -71,5 +73,9 @@ enum class TaskDescriptionError {
 }
 
 enum class TaskSubmitError {
+    UNKNOWN,
+}
+
+enum class TaskMoveError {
     UNKNOWN,
 }

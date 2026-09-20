@@ -15,4 +15,6 @@ sealed interface HomeAction {
     data class TaskDescriptionChanged(val value: String) : HomeAction
     data class TaskStatusChanged(val value: TaskStatus) : HomeAction
     data object CreateTask : HomeAction
+    data class TaskMoved(val taskId: Long, val destination: TaskStatus) : HomeAction
+    data object DismissTaskMoveError : HomeAction
 }

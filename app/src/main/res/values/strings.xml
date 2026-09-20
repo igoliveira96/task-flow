@@ -53,6 +53,9 @@
     <string name="close_edit_project">Close project editing</string>
     <string name="edit_project_error">We couldn’t update the project. Try again.</string>
     <string name="save">Save</string>
+    <string name="drag_task">Drag task</string>
+    <string name="move_task_to">Move task to %1$s</string>
+    <string name="task_move_error">We couldn’t move the task. Try again.</string>
     <plurals name="home_project_subtitle">
         <item quantity="one">%1$d task in %2$s</item>
         <item quantity="other">%1$d tasks in %2$s</item>

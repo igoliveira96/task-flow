@@ -11,6 +11,7 @@ import br.com.goulart.taskflow.domain.usecase.CreateProjectUseCase
 import br.com.goulart.taskflow.domain.usecase.CreateTaskUseCase
 import br.com.goulart.taskflow.domain.usecase.GetProjectTasksUseCase
 import br.com.goulart.taskflow.domain.usecase.ObserveProjectsUseCase
+import br.com.goulart.taskflow.domain.usecase.UpdateTaskStatusUseCase
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -33,6 +34,7 @@ class HomeViewModel(
     getProjectTasksUseCase: GetProjectTasksUseCase,
     private val createProjectUseCase: CreateProjectUseCase,
     private val createTaskUseCase: CreateTaskUseCase,
+    private val updateTaskStatusUseCase: UpdateTaskStatusUseCase,
     private val savedStateHandle: SavedStateHandle,
 ) : ViewModel() {
     private val interactionState = MutableStateFlow(
@@ -92,6 +94,8 @@ class HomeViewModel(
             isCreateTaskDialogVisible =
                 interaction.isCreateTaskDialogVisible && selectedProjectId != null,
             createTaskForm = interaction.createTaskForm,
+            movingTaskIds = interaction.movingTaskIds,
+            taskMoveError = interaction.taskMoveError,
         )
     }.stateIn(
         scope = viewModelScope,
@@ -113,6 +117,8 @@ class HomeViewModel(
             is HomeAction.TaskDescriptionChanged -> updateTaskDescription(action.value)
             is HomeAction.TaskStatusChanged -> updateTaskStatus(action.value)
             HomeAction.CreateTask -> createTask()
+            is HomeAction.TaskMoved -> moveTask(action.taskId, action.destination)
+            HomeAction.DismissTaskMoveError -> dismissTaskMoveError()
         }
     }
 
@@ -387,6 +393,43 @@ class HomeViewModel(
         }
     }
 
+    private fun moveTask(taskId: Long, destination: TaskStatus) {
+        val task = uiState.value.tasks.firstOrNull { it.id == taskId } ?: return
+        val interaction = interactionState.value
+        if (task.status == destination || taskId in interaction.movingTaskIds) return
+
+        updateInteraction { current ->
+            current.copy(
+                movingTaskIds = current.movingTaskIds + taskId,
+                taskMoveError = null,
+            )
+        }
+
+        viewModelScope.launch {
+            try {
+                updateTaskStatusUseCase(task, destination)
+                updateInteraction { current ->
+                    current.copy(movingTaskIds = current.movingTaskIds - taskId)
+                }
+            } catch (cancellation: CancellationException) {
+                throw cancellation
+            } catch (_: Exception) {
+                updateInteraction { current ->
+                    current.copy(
+                        movingTaskIds = current.movingTaskIds - taskId,
+                        taskMoveError = TaskMoveError.UNKNOWN,
+                    )
+                }
+            }
+        }
+    }
+
+    private fun dismissTaskMoveError() {
+        updateInteraction { current ->
+            current.copy(taskMoveError = null)
+        }
+    }
+
     private fun updateInteraction(
         transform: (HomeInteractionState) -> HomeInteractionState,
     ) {
@@ -413,6 +456,8 @@ class HomeViewModel(
         val createProjectForm: CreateProjectFormState = CreateProjectFormState(),
         val isCreateTaskDialogVisible: Boolean = false,
         val createTaskForm: CreateTaskFormState = CreateTaskFormState(),
+        val movingTaskIds: Set<Long> = emptySet(),
+        val taskMoveError: TaskMoveError? = null,
     )
 
     private data class SelectedProjectTasks(
